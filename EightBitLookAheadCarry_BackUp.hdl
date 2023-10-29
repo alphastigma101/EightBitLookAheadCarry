@@ -1,0 +1,120 @@
+/** More Context about FullAdders and HalfAdders:
+	* Where is the sum and the carryout at?
+		* On a full adder logic gate, at the very end there's an AND gate that does the sum
+		* On a fulladder logic gate, at the very end located near the AND gate, is the Carryout
+		* To make things easier, identify the circuit and trace it until you find the output for it
+	* What is a ripple carry?
+		* Each bit adder depends on the on the carry from the previous bit. This is known as a ripple carry. 
+		* Which basically means that Carry In and Carry Out combined together can be called a ripple carry
+		
+	* What is a look-ahead carry?
+		* It exists to only calculate the carry bit in less time than the adder 
+	*
+	*
+	
+*/
+
+/* What is this chip?
+	* This chip is the called the FourBitCarryLookAhead.
+	* It consists of Full-Adders and Half-Adders
+	* The inputs will be A and B but there are some constraints on this chip.
+	* Here are the constraints:
+		* G is 1 if both A and B are 1, which indicates when a Carry Out value of 1 is generated:
+		* G = A AND B
+		* P is 1 if either A or B is 1:
+		* P = A OR B
+		* The value P by itself does not indicate that the Carry bit is propagated; instead, the Carry bit is propagated if both P and Carry In are 1.
+		* G is the output of A AND B.
+			* Because if you are adding bit A and B to get a Sum (S) and a Carry-out (Co), your G would be the result of A AND B (A.B), showing that both bits can 'generate' a carry.
+	*/
+
+/** HAWOCO Chip:
+	* These are the outputs: sum,G,P;
+	*/
+
+CHIP EightBitLookAheadCarry {
+	IN A[8], B[8], CI; /* size of the list minus 1 gives the elements you want to use. 0 is one, one is two, and so forth.*/	
+	OUT sum[8], CO;
+
+	PARTS:
+	/* derived from a hand written diagram called Big Mama
+		* We started from right to left
+		*/
+	/* Start of first chip! */
+	HAWOCO(a=A[0], b=B[0], sum=HAWOCO_0, G=G_0, P=P_0); /* First chip*/
+	And(a=CI, b=P_0, out=and_out_0); /* First AND chip */
+	Or(a=and_out_0, b=G_0, out=or_out_0); /* First OR chip*/
+	HAWOCI(a=CI, b=HAWOCO_0, sum=sum[0]); /* First output */
+	/* End of First chip! */
+	/* Grouping them based on the G */
+	
+	/* Start of second chip! */
+	HAWOCO(a=A[1], b=B[1], sum=HAWOCO_1, G=G_1, P=P_1);
+        HAWOCI(a=or_out_0, b=HAWOCO_1, sum=sum[1]); /* Second out*/
+	And(a=G_0, b=P_1, out=out_and_1); /* Second AND chip*/
+	And3Way(a=CI, b=P_0, c=P_1, out=out_And3Way_0); /* First And3Way chip*/
+	Or3Way(a=out_And3Way_0, b=out_and_1, c=G_1, out=out_Or3Way_0); /* First Or3Way chip*/
+	/* End of second chip! */
+	
+	/* Start of third Chip! */
+	HAWOCO(a=A[2], b=B[2], sum=HAWOCO_2, G=G_2, P=P_2);
+	And(a=G_1, b=P_2, out=out_and_2); /* This is the third AND chip*/
+	And3Way(a=G_0, b=P_1, c=P_2, out=out_And3Way_1); /* This is the second And3Way chip*/
+        And4Way(a=CI, b=P_0, c=P_1, d=P_2, out=out_And4Way_0); /* This is the first And4Way chip*/
+	Or4Way(a=out_And4Way_0, b=out_And3Way_1, c=out_and_2, d=G_2, out=out_Or4Way); /* This is the first OR4Way chip*/
+	HAWOCI(a=out_Or3Way_0, b=HAWOCO_2, sum=sum[2]); /* This is the third output*/
+	/* End of third chip!*/
+
+	/* Start of fourth chip! */
+	HAWOCO(a=A[3], b=B[3], sum=HAWOCO_3, G=G_3, P=P_3);
+	And(a=G_2, b=P_3, out=out_and_3); /* This is the fourth AND chip*/
+	And3Way(a=G_1, b=P_2, c=P_3, out=out_And3Way_2); /* This is the third And3Way chip */
+        And4Way(a=G_0, b=P_1, c=P_1, d=P_3, out=out_And4Way_1); /* This is the second And4Way chip*/
+        And5Way(a=CI, b=P_0, c=P_1, d=P_2, e=P_3, out=out_And5Way_0); /* This is the first AndWay5Way chip*/
+        Or5Way(a=out_And5Way_0, b=out_And4Way_1, c=out_And3Way_2, d=out_and_3, e=G_3, out=out_Or5Way_0); /* This is the first OR5Way chip */
+	HAWOCI(a=out_Or4Way, b=HAWOCO_3, sum=sum[3]); /* This is the fourth output!*/
+	/* End of fourth chip! */
+	
+	/* Start of fifth chip! */
+	HAWOCO(a=A[4], b=B[4], sum=HAWOCO_4, G=G_4, P=P_4);
+	And(a=G_3, b=P_4, out=out_and_4); /*This is the fifth And chip!*/
+        And3Way(a=G_2, b=P_3, c=P_4, out=out_And3Way_3); /* This is the fourth And3Way chip!*/
+        And4Way(a=G_1, b=P_2, c=P_3, d=P_4, out=out_And4Way_2); /*This is the third And4Way chip!*/
+        And5Way(a=G_0, b=P_1, c=P_2, d=P_3, e=P_4, out=out_And5Way_1); /* This is the second And5Way chip!*/
+        And6Way(a=CI, b=P_0, c=P_1, d=P_2, e=P_3, f=P_4, out=out_And6Way_0); /* This is the first And6Way chip! */
+        Or6Way(a=out_And6Way_0, b=out_And5Way_1, c=out_And4Way_2, d=out_And3Way_3, e=out_and_4, f=G_4, out=out_Or6Way_0); /* This is the fist OR6Way chip!*/
+	HAWOCI(a=out_Or5Way_0, b=HAWOCO_4, sum=sum[4]); /* This is the fifth output! */
+	/* End of fifth chip! */
+	
+	HAWOCO(a=A[5], b=B[5], sum=HAWOCO_5, G=G_5, P=P_5); /* This is the sixth chip!*/
+	And(a=G_5, b=P_6, out=out_and_5); /* This is the sixth AND chip!*/
+        And3Way(a=G_4, b=P_5, c=P_6, out=out_And3Way_4); /* This is the fifth And3Way chip!*/
+        And4Way(a=G_3, b=P_4, c=P_5, d=P_6, out=out_And4Way_3); /* This is the fourth And4Way chip!*/
+        And5Way(a=G_2, b=P_3, c=P_4, d=P_5, e=P_6, out=out_And5Way_2); /* this is the third And5Way chip!*/
+        And6Way(a=G_1, b=P_2, c=P_3, d=P_4, e=P_5, f=P_6, out=out_And6Way_1); /* This is the second And6Way chip! */
+        And7Way(a=G_0, b=P_1, c=P_2, d=P_3, e=P_4, f=P_5, h=P_6, out=out_And7Way_0); /* This is the first And7Way chip! */
+        And8Way(a=CI, b=P_0, c=P_1, d=P_2, e=P_3, f=P_4, h=P_5, i=P_6, out=out_And8Way_0); /* This is the first And8Way chip! */
+        Or7Way(a=out_And7Way_0, b=out_And6Way_1, c=out_And5Way_2, d=out_And4Way_3, e=out_And3Way_4, f=G_5, g=out_and_5, out=out_Or7Way_0); /* this is the first Or7Way chip!*/
+	HAWOCI(a=out_Or6Way_0, b=HAWOCO_5, sum=sum[5]); /* This is the sixth output! */
+
+	/* This is the seven chip!*/
+	HAWOCO(a=A[6], b=B [6], sum=HAWOCO_6, G=G_6, P=P_6);
+	And(a=G_6, b=P_7, out=out_and_6); /* This is the seven AND chip!*/
+        And3Way(a=G_5, b=P_6, c=P_7, out=out_And3Way_5); /* This is the sixth And3Way chip!*/
+        And4Way(a=G_4, b=P_5, c=P_6, d=P_7, out=out_And4Way_4); /* This is the fifth And4Way chip!*/
+        And5Way(a=G_3, b=P_4, c=P_5, d=P_6, e=P_7, out=out_And5Way_3); /* this is the fourth And5Way chip!*/
+        And6Way(a=G_2, b=P_3, c=P_4, d=P_5, e=P_6, f=P_7, out=out_And6Way_2); /* This is the third And6Way chip! */
+        And7Way(a=G_0, b=P_1, c=P_2, d=P_3, e=P_4, f=P_5, h=P_6, out=out_And7Way_1); /* This is the second And7Way chip! */
+	And8Way(a=CI, b=P_1, c=P_2, d=P_3, e=P_4, f=P_5, h=P_6, i=P_7, out=out_And8Way_1); /* This is the second And8Way Chip!*/
+        Or8Way(a=out_And8Way_0, b=out_And7Way_1, c=out_And6Way_2, d=out_And5Way_3, e=out_And4Way_4, f=out_And3Way_5, g=out_and_6, h=G_6, out=out_Or8Way_0);
+        HAWOCI(a=out_Or7Way_0, b=HAWOCO_6, sum=sum[6]); /* This is the seven chip! */
+	/* End of seven chip!*/
+	
+	/* This is the eight chip The Carry Out!*/
+	HAWOCO(a=A[7], b=B[7], sum=HAWOCO_7, G=G_7, P=P_7);
+	And9Way(a=CI, b=P_0, c=P_1, d=P_2, e=P_3, f=P_4, g=P_5, h=P_6, i=P_7, out=out_And9Way_0);
+	Or9Way(a=out_And9Way_0, b=out_And8Way_1, c=out_And7Way_1, d=out_And6Way_2, e=out_And5Way_3, f=out_And4Way_4, g=out_And3Way_5, h=out_and_6, i=G_7, out=CO);
+	HAWOCI(a=out_Or8Way_0, b=HAWOCO_7, sum=sum[7]); /* This is the seven chip! */
+
+
+}

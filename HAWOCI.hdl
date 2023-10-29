@@ -1,0 +1,21 @@
+/**
+	* This is a Half Adder that needs to use CI
+	* The CI needs to be connected to the CO of the Half-Adder
+	*/
+
+CHIP HAWOCI {
+	IN a, b;
+	OUT sum;
+
+	PARTS:
+	Or(a=a, b=b, out=tmp_1);
+	Nand(a=a, b=b, out=tmp_2);
+	And(a=tmp_1, b=tmp_2, out=sum);
+}
+
+
+
+
+
+
+

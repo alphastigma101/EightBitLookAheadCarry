@@ -1,0 +1,15 @@
+
+
+/**
+  * This is the implemented chip
+  */
+CHIP Or3Way {
+   IN a, b, c;
+   OUT out;
+
+
+   PARTS:
+   Or(a=a, b=b, out=or1);
+   Or(a=or1, b=c, out=or2);
+   Or(a=or2, b=a, out=out);
+}

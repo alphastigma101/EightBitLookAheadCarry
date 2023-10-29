@@ -1,0 +1,13 @@
+
+/** 
+	* This is a And6Way chip
+	*/
+
+CHIP And6Way {
+	IN a, b, c, d, e, f;
+	OUT out;
+
+	PARTS:
+	And5Way(a=a, b=b, c=c, d=d, e=e, out=out1);
+	And(a=out1, b=f, out=out);
+}

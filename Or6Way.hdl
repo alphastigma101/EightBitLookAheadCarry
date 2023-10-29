@@ -1,0 +1,22 @@
+/**
+ * 6-way Or:
+ * out = (inin[0] or inin[1] or ... or inin[4])
+ */
+
+
+CHIP Or6Way {
+    IN  a, b, c, d, e, f; /* The size of the array minus one will give you the elements*/
+    OUT out;
+
+    PARTS:
+    /** Left to right of the equal sign
+    	* The variables on the left are the CHIP-PARTS which are defined and
+	* initialized inside its file ie CHIP-PART.hdl
+	*
+    */
+    Or5Way(a=a, b=b, c=c, d=d, e=e, out=or_1);
+    Or(a=or_1, b=f, out=out);
+
+}
+
+

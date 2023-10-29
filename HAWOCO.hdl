@@ -1,0 +1,17 @@
+/**
+	* Half Adder that needs to implement CO
+	* CO needs to be connected to Another Half Adder's CI
+	*/
+
+
+CHIP HAWOCO {
+	IN a, b; 
+	OUT sum, G, P;
+
+	PARTS:
+	And(a=a, b=b, out=G);
+	Nand(a=a, b=b, out=temp);
+	Or(a=a, b=b, out=P);
+	And(a=P, b=temp, out=sum);
+} 
+

@@ -1,0 +1,13 @@
+
+/** 
+	* This is a And7Way chip
+	*/
+
+CHIP And7Way {
+	IN a, b, c, d, e, f, h;
+	OUT out;
+
+	PARTS:
+	And6Way(a=a, b=b, c=c, d=d, e=e, f=f, out=out_1);
+	And(a=out_1, b=h, out=out);
+}

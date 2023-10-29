@@ -1,0 +1,13 @@
+
+/** 
+	* This is a And8Way chip
+	*/
+
+CHIP And8Way {
+	IN a, b, c, d, e, f, h, i;
+	OUT out;
+
+	PARTS:
+	And7Way(a=a, b=b, c=c, d=d, e=e, f=f, h=h, out=out1);
+	And(a=out1, b=i, out=out);
+}
